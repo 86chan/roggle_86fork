@@ -12,6 +12,7 @@ bool get isRelease {
 }
 
 const loggerName = '[APP]';
+const pathLength = 3;
 
 final logger = isRelease
     ? Roggle.crashlytics(
@@ -47,12 +48,14 @@ final logger = isRelease
             print('FirebaseCrashlytics.log: ${event.message}');
           },
           loggerName: loggerName,
+          pathLength: pathLength,
         ),
       )
     : Roggle(
         printer: SinglePrettyPrinter(
           loggerName: loggerName,
           stackTraceLevel: Level.error,
+          pathLength: pathLength,
         ),
       );
 

@@ -23,6 +23,7 @@ class SinglePrettyPrinter extends LogPrinter {
     this.levelEmojis = defaultLevelEmojis,
     this.levelLabels = defaultLevelLabels,
     this.timeFormatter = formatTime,
+    this.pathLength = -1,
   }) : _levelColors = levelColors ?? defaultLevelColors;
 
   /// If specified, it will be output at the beginning of the log.
@@ -71,6 +72,9 @@ class SinglePrettyPrinter extends LogPrinter {
 
   /// Path to this file.
   static final selfPath = _getSelfPath();
+
+  /// Path Length.
+  final int pathLength;
 
   /// Stack trace prefix default.
   static const defaultStackTracePrefix = '│ ';
@@ -167,6 +171,38 @@ class SinglePrettyPrinter extends LogPrinter {
       }
     }
     return null;
+  }
+
+  /// Adjust the length of the path.
+  @visibleForTesting
+  String customPath(String org) {
+    // ignore: always_put_control_body_on_new_line
+    if (pathLength <= 0) return org;
+
+    const splitChar = ' ';
+    const rep1 = ['(', '( '];
+    const rep2 = [')', ' )'];
+
+    final orgSplited = org.replaceAll(rep1[0], rep1[1])
+                          .replaceAll(rep2[0], rep2[1])
+                          .split(splitChar);
+
+    final ret = orgSplited.map((e) {
+      if (e.contains('file:///')) {
+        const splitChar = '/';
+        final pathSplited = e.split(splitChar);
+        final maxIndex = pathSplited.length;
+        // ignore: always_put_control_body_on_new_line
+        if(maxIndex <= pathLength) return e;
+        pathSplited.removeRange(0, maxIndex - pathLength);
+        e = '/${pathSplited.join(splitChar)}';
+      }
+      return e;
+    });
+
+    return ret.join(splitChar)
+              .replaceAll(rep1[1], rep1[0])
+              .replaceAll(rep2[1], rep2[0]);
   }
 
   @protected
@@ -304,7 +340,7 @@ class SinglePrettyPrinter extends LogPrinter {
     if (printCaller) {
       final caller = getCaller();
       if (caller != null) {
-        buffer.add(caller);
+        buffer.add(customPath(caller));
       }
     }
     return buffer.isNotEmpty ? '${buffer.join(' ')}: ' : '';

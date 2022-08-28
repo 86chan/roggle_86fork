@@ -36,6 +36,7 @@ class CrashlyticsPrinter extends SinglePrettyPrinter {
     bool printLabels = true,
     Map<Level, String> levelEmojis = SinglePrettyPrinter.defaultLevelEmojis,
     Map<Level, String> levelLabels = SinglePrettyPrinter.defaultLevelLabels,
+    int pathLength = -1,
   }) : super(
           loggerName: loggerName,
           colors: false,
@@ -47,6 +48,7 @@ class CrashlyticsPrinter extends SinglePrettyPrinter {
           stackTracePrefix: '',
           levelEmojis: levelEmojis,
           levelLabels: levelLabels,
+          pathLength: pathLength,
         );
 
   /// The current logging level to send error.
