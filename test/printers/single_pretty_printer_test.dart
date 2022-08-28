@@ -642,6 +642,32 @@ packages/flutter_sample_custom_logger/main.dart 5:10                 main
       }
     });
   });
+  group('customPath()', () {
+    test('device', () {
+      _warpCustomPathTest(
+        '#0      demo (file:///Users/susa/Develop/roggle/example/main.dart:22:20)',
+        '#0      demo (file:///Users/susa/Develop/roggle/example/main.dart:22:20)',
+        -1,
+      );
+      _warpCustomPathTest(
+        '#0      demo (file:///Users/susa/Develop/roggle/example/main.dart:22:20)',
+        '#0      demo (/roggle/example/main.dart:22:20)',
+        3,
+      );
+      _warpCustomPathTest(
+        '#3      main (file:///Users/susa/Develop/roggle/example/main.dart:22:20)',
+        '#3      main (/main.dart:22:20)',
+        1,
+      );
+    });
+    test('web', () {
+      _warpCustomPathTest(
+        '/logger.dart 116:11             log',
+        '/logger.dart 116:11             log',
+        1,
+      );
+    });
+  });
 }
 
 String _readMessage(List<String> log) {
@@ -692,4 +718,17 @@ void _wrapCurrentTimeTest(
 ) {
   final actualTime = SinglePrettyPrinter.formatTime(dateTime);
   expect(actualTime, expectTime);
+}
+
+void _warpCustomPathTest(
+  String stackTraceString,
+  String? expectCaller,
+  int pathLength,
+) {
+  final printer = SinglePrettyPrinter(pathLength: pathLength);
+  final actualCaller = printer.customPath(
+    stackTraceString,
+  );
+
+  expect(actualCaller, expectCaller);
 }

@@ -175,30 +175,29 @@ class SinglePrettyPrinter extends LogPrinter {
 
   /// Adjust the length of the path.
   @visibleForTesting
-  String customPath(String org) {
+  String customPath(String logLine) {
     // ignore: always_put_control_body_on_new_line
-    if (pathLength <= 0) return org;
+    if (pathLength <= 0) return logLine;
 
     const splitChar = ' ';
     const rep1 = ['(', '( '];
     const rep2 = [')', ' )'];
 
-    final orgSplited = org.replaceAll(rep1[0], rep1[1])
-                          .replaceAll(rep2[0], rep2[1])
-                          .split(splitChar);
+    final orgSplited = logLine.replaceAll(rep1[0], rep1[1])
+                              .replaceAll(rep2[0], rep2[1])
+                              .split(splitChar);
 
     final ret = orgSplited.map((e) {
-      if (e.contains('file:///')) {
-        const splitChar = '/';
-        final pathSplited = e.split(splitChar);
+      if (e.contains(RegExp(r'^file:///'))) {
+        final pathSplited = e.split(RegExp(r'/(?!/)'));
         final maxIndex = pathSplited.length;
         // ignore: always_put_control_body_on_new_line
-        if(maxIndex <= pathLength) return e;
+        if (maxIndex <= pathLength) return e;
         pathSplited.removeRange(0, maxIndex - pathLength);
-        e = '/${pathSplited.join(splitChar)}';
+        e = '/${pathSplited.join('/')}';
       }
       return e;
-    });
+    }).toList();
 
     return ret.join(splitChar)
               .replaceAll(rep1[1], rep1[0])
